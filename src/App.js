@@ -378,25 +378,34 @@ function useAudio() {
     let t=ctx.currentTime+0.05;
     notes.forEach(({f,d})=>{
       if(f>0){
+        // 피아노 메인 음
         const osc=ctx.createOscillator();
         const g=ctx.createGain();
-        osc.type='sine';
+        osc.type='triangle';
         osc.frequency.value=f;
-        g.gain.setValueAtTime(0,t);
-        g.gain.linearRampToValueAtTime(0.35,t+0.05);
-        g.gain.exponentialRampToValueAtTime(0.001,t+d*0.9);
+        g.gain.setValueAtTime(0.45,t);
+        g.gain.exponentialRampToValueAtTime(0.18,t+d*0.3);
+        g.gain.exponentialRampToValueAtTime(0.001,t+d*0.95);
         osc.connect(g);g.connect(masterRef.current);
         osc.start(t);osc.stop(t+d);
-        // 화음 (5도)
+        // 피아노 배음 (2배음)
         const osc2=ctx.createOscillator();
         const g2=ctx.createGain();
-        osc2.type='triangle';
-        osc2.frequency.value=f*1.5;
-        g2.gain.setValueAtTime(0,t);
-        g2.gain.linearRampToValueAtTime(0.1,t+0.05);
-        g2.gain.exponentialRampToValueAtTime(0.001,t+d*0.8);
+        osc2.type='sine';
+        osc2.frequency.value=f*2;
+        g2.gain.setValueAtTime(0.12,t);
+        g2.gain.exponentialRampToValueAtTime(0.001,t+d*0.5);
         osc2.connect(g2);g2.connect(masterRef.current);
-        osc2.start(t);osc2.stop(t+d);
+        osc2.start(t);osc2.stop(t+d*0.5);
+        // 피아노 저음 반주 (옥타브 아래)
+        const osc3=ctx.createOscillator();
+        const g3=ctx.createGain();
+        osc3.type='sine';
+        osc3.frequency.value=f*0.5;
+        g3.gain.setValueAtTime(0.08,t);
+        g3.gain.exponentialRampToValueAtTime(0.001,t+d*0.7);
+        osc3.connect(g3);g3.connect(masterRef.current);
+        osc3.start(t);osc3.stop(t+d*0.7);
       }
       t+=d;
     });
@@ -733,7 +742,7 @@ export default function App() {
           <LevelSelect value={aiLevel2} onChange={setAiLevel2} label="백 AI:"/>
           <div style={{display:'flex',alignItems:'center',gap:4}}>
             <span style={{color:'#c8a96e',fontSize:11}}>속도:</span>
-            {[[800,'느림'],[500,'보통'],[200,'빠름']].map(([v,l])=><BtnSm key={v} active={avaSpeed===v} onClick={()=>setAvaSpeed(v)}>{l}</BtnSm>)}
+            {[[1600,'느림'],[1000,'보통'],[400,'빠름']].map(([v,l])=><BtnSm key={v} active={avaSpeed===v} onClick={()=>setAvaSpeed(v)}>{l}</BtnSm>)}
           </div>
         </>
       )}
@@ -782,22 +791,7 @@ export default function App() {
         )}
       </div>
 
-      {/* 착수 확인 UI */}
-      {pending&&isPlayerTurn&&!winner&&(
-        <div style={{marginBottom:5,display:'flex',gap:8,alignItems:'center'}}>
-          <span style={{color:'#c8a96e',fontSize:11}}>
-            ({String.fromCharCode(65+pending[1])}{SIZE-pending[0]}) 에 착수?
-          </span>
-          <button onClick={confirmMove}
-            style={{background:'#27ae60',color:'#fff',border:'none',borderRadius:8,padding:'4px 14px',fontSize:12,fontWeight:700,cursor:'pointer'}}>
-            ✅ 확인
-          </button>
-          <button onClick={cancelPending}
-            style={{background:'#c0392b',color:'#fff',border:'none',borderRadius:8,padding:'4px 14px',fontSize:12,fontWeight:700,cursor:'pointer'}}>
-            ❌ 취소
-          </button>
-        </div>
-      )}
+
 
       {/* 보드 */}
       <div style={{position:'relative',width:boardPx,height:boardPx,background:'linear-gradient(135deg,#c8913a,#a0702a,#8B5E1A)',borderRadius:8,boxShadow:'0 6px 24px #0009,inset 0 1px 0 #e8c87033',border:'3px solid #5a3000',flexShrink:0,touchAction:'none'}}
@@ -844,9 +838,7 @@ export default function App() {
                 {!stone&&!pend&&forbidden&&(
                   <span style={{color:'#e74c3c',fontSize:R*1.05,lineHeight:1,fontWeight:900,opacity:0.8}}>✕</span>
                 )}
-                {!stone&&!pend&&!forbidden&&canPlace&&(
-                  <div style={{width:R*2,height:R*2,borderRadius:'50%',background:turn===BLACK?'radial-gradient(circle at 35% 30%,#666,#111)':'radial-gradient(circle at 35% 30%,#fff,#bbb)',opacity:0.15}}/>
-                )}
+                
               </div>
             );
           })
@@ -862,6 +854,13 @@ export default function App() {
 
       {/* 하단 컨트롤 */}
       <div style={{display:'flex',gap:8,marginTop:6,flexWrap:'wrap',justifyContent:'center'}}>
+        {pending&&isPlayerTurn&&!winner&&(
+          <button onClick={confirmMove}
+            style={{background:'#27ae60',color:'#fff',border:'2px solid #2ecc71',borderRadius:10,padding:'9px 22px',fontSize:14,fontWeight:800,cursor:'pointer',boxShadow:'0 0 10px #27ae6088'}}>
+            ✅ 확인 ({String.fromCharCode(65+pending[1])}{SIZE-pending[0]})
+          </button>
+        )}
+      
         {mode==='ava'&&!winner&&(
           <button onClick={()=>setAvaRunning(r=>!r)}
             style={{background:avaRunning?'#8B0000':'#1a4a1a',color:'#fff',border:`1px solid ${avaRunning?'#e74':'#4a4'}`,borderRadius:9,padding:'8px 20px',fontSize:13,fontWeight:700,cursor:'pointer'}}>
