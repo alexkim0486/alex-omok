@@ -39,66 +39,154 @@ function getWinCells(board, r, c, color) {
   return [];
 }
 
-// ── 렌주룰 (정밀 판정) ───────────────────────────────────
-function isOverline(board, r, c) {
-  const tmp = board.map(row=>[...row]); tmp[r][c]=BLACK;
-  for (const [dr,dc] of DIRS) {
+// ── 렌주룰 (나무위키 렌주 문서 기준 정확한 판정) ──────────
+
+// 가상 보드에 돌 놓기
+const withStone = (board, r, c, color) => {
+  const tmp = board.map(row=>[...row]); tmp[r][c]=color; return tmp;
+};
+
+// 연속 돌 개수 (한 방향)
+function countStones(board, r, c, dr, dc, color) {
+  let cnt=0, nr=r+dr, nc=c+dc;
+  while(inBounds(nr,nc) && board[nr][nc]===color){cnt++;nr+=dr;nc+=dc;}
+  return cnt;
+}
+
+// 5목 완성 여부 (정확히 5목, 장목 아님)
+function makesFive(board, r, c) {
+  const tmp = withStone(board,r,c,BLACK);
+  for(const [dr,dc] of DIRS){
     const {count} = lineInfo(tmp,r,c,dr,dc,BLACK);
-    if (count>=6) return true;
+    if(count===5) return true;
   }
   return false;
 }
 
-// 정확한 열린3 판정: 돌을 놓았을 때 양쪽이 열린 정확히 3개 연속
-function isOpenThree(board, r, c, dr, dc) {
-  const tmp = board.map(row=>[...row]); tmp[r][c]=BLACK;
-  const {count, openF, openB, cntF, cntB} = lineInfo(tmp,r,c,dr,dc,BLACK);
-  if (count !== 3) return false;
-  if (!openF || !openB) return false;
-  // 4로 만들 수 있는 자리가 있어야 함
-  // 양쪽에 빈 칸이 있고 총 길이가 5 이상 가능해야 진짜 열린3
-  let spaceF=0, nr=r+(cntF+1)*dr, nc=c+(cntF+1)*dc;
-  if(inBounds(nr,nc)&&tmp[nr][nc]===EMPTY) spaceF=1;
-  let spaceB=0; nr=r-(cntB+1)*dr; nc=c-(cntB+1)*dc;
-  if(inBounds(nr,nc)&&tmp[nr][nc]===EMPTY) spaceB=1;
-  return openF && openB && (spaceF+spaceB >= 1);
+// 장목: 6목 이상
+function isOverline(board, r, c) {
+  const tmp = withStone(board,r,c,BLACK);
+  for(const [dr,dc] of DIRS){
+    const {count} = lineInfo(tmp,r,c,dr,dc,BLACK);
+    if(count>=6) return true;
+  }
+  return false;
 }
 
-function countOpenThrees(board, r, c) {
-  if (board[r][c] !== EMPTY) return 0;
+// ── 4목 판정 (띈 4 포함) ──────────────────────────────────
+// 렌주룰에서 '4': 한 수를 더 두면 5목이 될 수 있는 모든 형태
+// 연속4: ●●●●_ 또는 _●●●● (한쪽 막힌4, 열린4)
+// 띈4:   ●●●_● 또는 ●●_●● 또는 ●_●●● 등
+function countFoursInDir(board, r, c, dr, dc) {
+  // r,c에 BLACK이 이미 놓인 상태에서 해당 방향의 4목 개수
+  // 4목 = 이 방향으로 5칸 윈도우 내에서 4개의 흑돌 + 1개의 빈칸이 존재하고
+  //       그 빈칸에 놓으면 5목이 되는 경우
   let cnt = 0;
-  for (const [dr,dc] of DIRS) if (isOpenThree(board,r,c,dr,dc)) cnt++;
-  return cnt;
-}
-
-// 정확한 4 판정: 열린4 또는 막힌4
-function isFour(board, r, c, dr, dc) {
-  const tmp = board.map(row=>[...row]); tmp[r][c]=BLACK;
-  const {count, openF, openB} = lineInfo(tmp,r,c,dr,dc,BLACK);
-  if (count !== 4) return false;
-  return openF || openB; // 최소 한쪽은 열려있어야 4목
+  // 이 방향으로 -4 ~ 0 까지 5칸 윈도우를 슬라이딩
+  for(let start=-4; start<=0; start++){
+    const cells = [];
+    for(let i=0; i<5; i++){
+      const nr=r+(start+i)*dr, nc=c+(start+i)*dc;
+      if(!inBounds(nr,nc)){cells.push('X');continue;}
+      cells.push(board[nr][nc]);
+    }
+    // 윈도우 내 흑돌 4개 + 빈칸 1개 이면 4목 후보
+    const blacks = cells.filter(v=>v===BLACK).length;
+    const empties = cells.filter(v=>v===EMPTY).length;
+    const walls = cells.filter(v=>v==='X'||v===WHITE).length;
+    if(blacks===4 && empties===1 && walls===0) {
+      // 빈칸 자리에 놓으면 실제로 5목이 되는지 확인
+      for(let i=0;i<5;i++){
+        if(cells[i]===EMPTY){
+          const er=r+(start+i)*dr, ec=c+(start+i)*dc;
+          if(inBounds(er,ec)){
+            const tmp2=board.map(row=>[...row]); tmp2[er][ec]=BLACK;
+            const {count}=lineInfo(tmp2,er,ec,dr,dc,BLACK);
+            if(count===5){cnt++;break;}
+          }
+        }
+      }
+    }
+  }
+  return cnt>0?1:0; // 방향당 최대 1개
 }
 
 function countFours(board, r, c) {
-  if (board[r][c] !== EMPTY) return 0;
-  let cnt = 0;
-  for (const [dr,dc] of DIRS) if (isFour(board,r,c,dr,dc)) cnt++;
+  if(board[r][c]!==EMPTY) return 0;
+  const tmp = withStone(board,r,c,BLACK);
+  let cnt=0;
+  for(const [dr,dc] of DIRS) cnt+=countFoursInDir(tmp,r,c,dr,dc);
   return cnt;
 }
 
+// ── 3목 판정 (띈 3 포함, 거짓금수 제외) ──────────────────
+// 렌주룰에서 '열린3': 한 수를 더 두면 열린4(양쪽 열린 4목)가 될 수 있는 형태
+// 연속3: _●●●_ (양쪽 열린)
+// 띈3:   _●●_●_ 또는 _●_●●_ 등 (양쪽 열린 + 한칸 띔)
+// 거짓금수: 3처럼 보여도 그 다음 수에서 열린4를 만들 수 없으면 3이 아님
+function isOpenThreeInDir(board, r, c, dr, dc) {
+  // r,c에 BLACK이 이미 놓인 상태
+  // 이 방향으로 6칸 윈도우 내에서 열린3 패턴 탐색
+  for(let start=-5; start<=0; start++){
+    const cells=[];
+    const coords=[];
+    for(let i=0;i<6;i++){
+      const nr=r+(start+i)*dr, nc=c+(start+i)*dc;
+      if(!inBounds(nr,nc)){cells.push('X');coords.push(null);continue;}
+      cells.push(board[nr][nc]);coords.push([nr,nc]);
+    }
+    // 양 끝이 열려야 함 (빈칸 또는 범위 밖이면 안됨 - 양쪽 모두 빈칸이어야)
+    if(cells[0]!==EMPTY || cells[5]!==EMPTY) continue;
+    // 중간 4칸(인덱스 1~4)에서 흑돌 3개 + 빈칸 1개 패턴
+    const mid = cells.slice(1,5);
+    const blacks = mid.filter(v=>v===BLACK).length;
+    const empties = mid.filter(v=>v===EMPTY).length;
+    if(blacks!==3 || empties!==1) continue;
+    // 거짓금수 체크: 빈칸에 놓았을 때 열린4가 만들어지는지 확인
+    for(let i=1;i<=4;i++){
+      if(cells[i]===EMPTY && coords[i]){
+        const [er,ec]=coords[i];
+        const tmp2=board.map(row=>[...row]); tmp2[er][ec]=BLACK;
+        // 이 자리에 놓으면 4목이 되고 양쪽이 열린지 확인
+        const {count,openF,openB}=lineInfo(tmp2,er,ec,dr,dc,BLACK);
+        if(count===4 && openF && openB) return true;
+        // 기준점 r,c 에서도 확인
+        const {count:c2,openF:of2,openB:ob2}=lineInfo(tmp2,r,c,dr,dc,BLACK);
+        if(c2===4 && of2 && ob2) return true;
+      }
+    }
+  }
+  return false;
+}
+
+function countOpenThrees(board, r, c) {
+  if(board[r][c]!==EMPTY) return 0;
+  const tmp = withStone(board,r,c,BLACK);
+  let cnt=0;
+  for(const [dr,dc] of DIRS) if(isOpenThreeInDir(tmp,r,c,dr,dc)) cnt++;
+  return cnt;
+}
+
+// ── 금수 최종 판정 ────────────────────────────────────────
 function isForbidden(board, r, c) {
-  if (board[r][c] !== EMPTY) return false;
-  if (isOverline(board,r,c)) return true;
-  if (countFours(board,r,c) >= 2) return true;
-  if (countOpenThrees(board,r,c) >= 2) return true;
+  if(board[r][c]!==EMPTY) return false;
+  // 5목 완성은 금수보다 항상 우선 → 승리
+  if(makesFive(board,r,c)) return false;
+  // 장목 (6목 이상)
+  if(isOverline(board,r,c)) return true;
+  // 4-4 (쌍사, 띈4 포함, 열림/닫힘 무관)
+  if(countFours(board,r,c)>=2) return true;
+  // 3-3 (쌍삼, 열린3만 해당, 띈3 포함, 거짓금수 제외)
+  if(countOpenThrees(board,r,c)>=2) return true;
   return false;
 }
 
 function getForbiddenType(board, r, c) {
-  if (board[r][c] !== EMPTY) return null;
-  if (isOverline(board,r,c)) return '장목';
-  if (countFours(board,r,c) >= 2) return '44';
-  if (countOpenThrees(board,r,c) >= 2) return '33';
+  if(board[r][c]!==EMPTY) return null;
+  if(makesFive(board,r,c)) return null;
+  if(isOverline(board,r,c)) return '장목';
+  if(countFours(board,r,c)>=2) return '44';
+  if(countOpenThrees(board,r,c)>=2) return '33';
   return null;
 }
 
