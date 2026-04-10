@@ -326,138 +326,217 @@ function useBoardSize(){
   return size;
 }
 
-// ── 클래식 음악 (Web Audio) ──────────────────────────────
-const CLASSICS = [
-  {name:'엘리제를 위하여', composer:'베토벤',
-   notes:[{f:659,d:.3},{f:623,d:.3},{f:659,d:.3},{f:623,d:.3},{f:659,d:.3},{f:494,d:.3},{f:587,d:.3},{f:523,d:.3},{f:440,d:.6},{f:0,d:.1},{f:262,d:.3},{f:330,d:.3},{f:440,d:.3},{f:494,d:.6},{f:0,d:.1},{f:330,d:.3},{f:415,d:.3},{f:494,d:.3},{f:523,d:.6}]},
-  {name:'터키 행진곡', composer:'모차르트',
-   notes:[{f:440,d:.2},{f:440,d:.2},{f:415,d:.2},{f:440,d:.2},{f:0,d:.1},{f:440,d:.2},{f:0,d:.1},{f:440,d:.2},{f:494,d:.2},{f:523,d:.2},{f:494,d:.2},{f:523,d:.2},{f:0,d:.1},{f:523,d:.2},{f:0,d:.1},{f:523,d:.2},{f:587,d:.2},{f:659,d:.4}]},
-  {name:'녹턴 Op.9', composer:'쇼팽',
-   notes:[{f:494,d:.6},{f:587,d:.3},{f:659,d:.3},{f:740,d:.6},{f:659,d:.3},{f:587,d:.3},{f:523,d:.9},{f:0,d:.2},{f:440,d:.6},{f:523,d:.3},{f:587,d:.3},{f:659,d:.9}]},
-  {name:'미뉴에트', composer:'바흐',
-   notes:[{f:392,d:.4},{f:349,d:.2},{f:330,d:.2},{f:294,d:.2},{f:262,d:.4},{f:294,d:.4},{f:330,d:.4},{f:392,d:.4},{f:349,d:.4},{f:294,d:.8},{f:440,d:.4},{f:392,d:.2},{f:349,d:.2},{f:330,d:.2},{f:294,d:.4}]},
-  {name:'달빛', composer:'드뷔시',
-   notes:[{f:415,d:.5},{f:523,d:.5},{f:622,d:.5},{f:740,d:1},{f:622,d:.5},{f:523,d:.5},{f:466,d:.5},{f:415,d:1},{f:370,d:.5},{f:466,d:.5},{f:523,d:.5},{f:622,d:1}]},
-  {name:'월광 소나타', composer:'베토벤',
-   notes:[{f:208,d:.4},{f:262,d:.4},{f:330,d:.4},{f:208,d:.4},{f:262,d:.4},{f:330,d:.4},{f:196,d:.4},{f:247,d:.4},{f:330,d:.4},{f:196,d:.4},{f:247,d:.4},{f:330,d:.4},{f:175,d:.4},{f:220,d:.4},{f:294,d:.8}]},
-  {name:'캐논', composer:'파헬벨',
-   notes:[{f:294,d:.4},{f:220,d:.4},{f:247,d:.4},{f:196,d:.4},{f:196,d:.4},{f:147,d:.4},{f:175,d:.4},{f:220,d:.4},{f:294,d:.4},{f:220,d:.4},{f:247,d:.4},{f:196,d:.4},{f:175,d:.4},{f:220,d:.4},{f:247,d:.4},{f:294,d:.4}]},
-  {name:'세레나데', composer:'슈베르트',
-   notes:[{f:330,d:.3},{f:294,d:.15},{f:330,d:.15},{f:349,d:.3},{f:294,d:.3},{f:262,d:.6},{f:0,d:.15},{f:262,d:.3},{f:294,d:.3},{f:330,d:.3},{f:392,d:.3},{f:440,d:.6}]},
-  {name:'백조', composer:'생상스',
-   notes:[{f:523,d:.6},{f:494,d:.3},{f:440,d:.3},{f:494,d:.6},{f:523,d:.6},{f:587,d:.3},{f:659,d:.3},{f:587,d:.6},{f:523,d:.6},{f:494,d:.3},{f:523,d:.3},{f:587,d:1.2}]},
-  {name:'작은 별', composer:'모차르트',
-   notes:[{f:262,d:.4},{f:262,d:.4},{f:392,d:.4},{f:392,d:.4},{f:440,d:.4},{f:440,d:.4},{f:392,d:.8},{f:349,d:.4},{f:349,d:.4},{f:330,d:.4},{f:330,d:.4},{f:294,d:.4},{f:294,d:.4},{f:262,d:.8}]},
+// ── 한국인이 좋아하는 팝송 100곡 YouTube ID ──────────────
+const POPSONGS = [
+  {title:'Shape of You',artist:'Ed Sheeran',id:'JGwWNGJdvx8'},
+  {title:'Blinding Lights',artist:'The Weeknd',id:'4NRXx6U8ABQ'},
+  {title:'Someone Like You',artist:'Adele',id:'hLQl3WQQoQ0'},
+  {title:'Rolling in the Deep',artist:'Adele',id:'rYEDA3JcQqw'},
+  {title:'Happy',artist:'Pharrell Williams',id:'ZbZSe6N_BXs'},
+  {title:'Uptown Funk',artist:'Bruno Mars',id:'OPf0YbXqDm0'},
+  {title:'Stay With Me',artist:'Sam Smith',id:'pB-5XG-DbAA'},
+  {title:'Thinking Out Loud',artist:'Ed Sheeran',id:'lp-EO5I60KA'},
+  {title:'Let Her Go',artist:'Passenger',id:'RBumgq5yVrA'},
+  {title:'Counting Stars',artist:'OneRepublic',id:'hT_nvWreIhg'},
+  {title:'Photograph',artist:'Ed Sheeran',id:'nSDgHBxUbVQ'},
+  {title:'Perfect',artist:'Ed Sheeran',id:'2Vv-BfVoq4g'},
+  {title:'All of Me',artist:'John Legend',id:'450p7goxZqg'},
+  {title:'See You Again',artist:'Wiz Khalifa',id:'RgKAFK5djSk'},
+  {title:'Shallow',artist:'Lady Gaga',id:'bo_efYhYU2A'},
+  {title:'A Thousand Years',artist:'Christina Perri',id:'rtOvBOTyX00'},
+  {title:'Poker Face',artist:'Lady Gaga',id:'bESGLojNYSo'},
+  {title:'Bad Guy',artist:'Billie Eilish',id:'DyDfgMOUjCI'},
+  {title:'Levitating',artist:'Dua Lipa',id:'TUVcZfQe-Kw'},
+  {title:'Watermelon Sugar',artist:'Harry Styles',id:'E07s5ZYygMg'},
+  {title:'Dynamite',artist:'BTS',id:'gdZLi9oWNZg'},
+  {title:'Butter',artist:'BTS',id:'WMweEpGlu_U'},
+  {title:'Permission to Dance',artist:'BTS',id:'CuklIb9d3fI'},
+  {title:'LALISA',artist:'LISA',id:'awkkyBH2zEo'},
+  {title:'Pink Venom',artist:'BLACKPINK',id:'nSD9lMVMCuA'},
+  {title:'Attention',artist:'NewJeans',id:'ArmDp-zijuc'},
+  {title:'Hype Boy',artist:'NewJeans',id:'MirbCiMhIPE'},
+  {title:'Love Dive',artist:'IVE',id:'4vbDFu0PUew'},
+  {title:'After LIKE',artist:'IVE',id:'F0B7HDiY-10'},
+  {title:'Nxde',artist:'(G)I-DLE',id:'yYK9uaAVCGw'},
+  {title:'Believer',artist:'Imagine Dragons',id:'7wtfhZwyrcc'},
+  {title:'Thunder',artist:'Imagine Dragons',id:'va0PTsJxBLE'},
+  {title:'Demons',artist:'Imagine Dragons',id:'mWRsgZuwf_8'},
+  {title:'Radioactive',artist:'Imagine Dragons',id:'ktvTqknDobU'},
+  {title:'Stressed Out',artist:'Twenty One Pilots',id:'pXRviuL6vMY'},
+  {title:'Ride',artist:'Twenty One Pilots',id:'Pw-4kopvmi8'},
+  {title:'Mr. Brightside',artist:'The Killers',id:'gGdGFtwCNBE'},
+  {title:'Human',artist:'The Killers',id:'RIZdjT9SCPE'},
+  {title:'Viva La Vida',artist:'Coldplay',id:'dvgZkm1xWPE'},
+  {title:'The Scientist',artist:'Coldplay',id:'RB-RcX5DS5A'},
+  {title:'Fix You',artist:'Coldplay',id:'k4V3Mo61fJM'},
+  {title:'Yellow',artist:'Coldplay',id:'yKNxeF4KMsY'},
+  {title:'Clocks',artist:'Coldplay',id:'d020hcWA_Wg'},
+  {title:'Someone You Loved',artist:'Lewis Capaldi',id:'zABZyahH4t0'},
+  {title:'Before You Go',artist:'Lewis Capaldi',id:'_V2sBURgUBI'},
+  {title:'Heat Waves',artist:'Glass Animals',id:'mRD0-GxqHVo'},
+  {title:'drivers license',artist:'Olivia Rodrigo',id:'ZmDBbnmKpqQ'},
+  {title:'good 4 u',artist:'Olivia Rodrigo',id:'gNi_6U5Pm_o'},
+  {title:'traitor',artist:'Olivia Rodrigo',id:'4ux2oDHMFiA'},
+  {title:'Peaches',artist:'Justin Bieber',id:'tQ0yjYMHNkM'},
+  {title:'Stay',artist:'Justin Bieber',id:'iom4fQOiMW8'},
+  {title:'Love Yourself',artist:'Justin Bieber',id:'oyEuk8j8imI'},
+  {title:'Sorry',artist:'Justin Bieber',id:'fRh_vgS2dFE'},
+  {title:'Anti-Hero',artist:'Taylor Swift',id:'b1kbLwvqugk'},
+  {title:'Shake It Off',artist:'Taylor Swift',id:'nfWlot6h_JM'},
+  {title:'Blank Space',artist:'Taylor Swift',id:'e-ORhEE9VVg'},
+  {title:'Bad Blood',artist:'Taylor Swift',id:'QcIy9NiNbmo'},
+  {title:'Cruel Summer',artist:'Taylor Swift',id:'ic8j13piAhQ'},
+  {title:'As It Was',artist:'Harry Styles',id:'H5v3kku4y6Q'},
+  {title:'Adore You',artist:'Harry Styles',id:'VF-r5TtlT9w'},
+  {title:'Flowers',artist:'Miley Cyrus',id:'G7KNmW9a75Y'},
+  {title:'Midnight Rain',artist:'Taylor Swift',id:'yY8BO4x7OX4'},
+  {title:'Positions',artist:'Ariana Grande',id:'tcYodQoapMg'},
+  {title:'7 rings',artist:'Ariana Grande',id:'QYh6mYIJG2Y'},
+  {title:'thank u, next',artist:'Ariana Grande',id:'gl1aHhXnN1k'},
+  {title:'God is a woman',artist:'Ariana Grande',id:'kHLHSlExFis'},
+  {title:'Lose You To Love Me',artist:'Selena Gomez',id:'_1OfTeZLioo'},
+  {title:'Come & Get It',artist:'Selena Gomez',id:'pCTae4TPFCE'},
+  {title:'Wolves',artist:'Selena Gomez',id:'0n7jEexKnOQ'},
+  {title:'Dance Monkey',artist:'Tones and I',id:'q0hyYWKXF0Q'},
+  {title:'Havana',artist:'Camila Cabello',id:'HCjNJDNzw8Y'},
+  {title:'Señorita',artist:'Shawn Mendes',id:'Pkh8UtuejGw'},
+  {title:'Stitches',artist:'Shawn Mendes',id:'VbfpW0pbvaU'},
+  {title:'Treat You Better',artist:'Shawn Mendes',id:'lY2yjAdbvdQ'},
+  {title:'Mercy',artist:'Shawn Mendes',id:'Lp7E973LKQE'},
+  {title:'One Dance',artist:'Drake',id:'iuqXFC_qIvA'},
+  {title:'Hotline Bling',artist:'Drake',id:'uxpDa-c-4Mc'},
+  {title:'God\'s Plan',artist:'Drake',id:'xpVfcZ0ZcFM'},
+  {title:'Circles',artist:'Post Malone',id:'21qNxnCS8WU'},
+  {title:'Sunflower',artist:'Post Malone',id:'ApXoWvfEYVU'},
+  {title:'Rockstar',artist:'Post Malone',id:'UceaB4D0jpo'},
+  {title:'Bohemian Rhapsody',artist:'Queen',id:'fJ9rUzIMcZQ'},
+  {title:'Don\'t Stop Me Now',artist:'Queen',id:'HgzGwKwLmgM'},
+  {title:'We Will Rock You',artist:'Queen',id:'-tJYN-eG1zk'},
+  {title:'Hotel California',artist:'Eagles',id:'BciS5krYL80'},
+  {title:'Smells Like Teen Spirit',artist:'Nirvana',id:'hTWKbfoikeg'},
+  {title:'Wonderwall',artist:'Oasis',id:'bx1Bh8ZvH84'},
+  {title:'Yesterday',artist:'Beatles',id:'NrgmdOz227I'},
+  {title:'Let It Be',artist:'Beatles',id:'QDYfEBY9NM4'},
+  {title:'Hey Jude',artist:'Beatles',id:'A_MjCqQoLLA'},
+  {title:'Imagine',artist:'John Lennon',id:'YkgkThdzX-8'},
+  {title:'Billie Jean',artist:'Michael Jackson',id:'Zi_XLOBDo_Y'},
+  {title:'Thriller',artist:'Michael Jackson',id:'sOnqjkJTMaA'},
+  {title:'Beat It',artist:'Michael Jackson',id:'oRdxUFDoQe0'},
+  {title:'I Will Always Love You',artist:'Whitney Houston',id:'3JWTaaS7LdU'},
+  {title:'My Heart Will Go On',artist:'Celine Dion',id:'WNIPqafd4As'},
+  {title:'Hello',artist:'Adele',id:'YQHsXMglC9A'},
+  {title:'Set Fire to the Rain',artist:'Adele',id:'Ri7-vnrJD3k'},
+  {title:'Skyfall',artist:'Adele',id:'DeumyOPc9WA'},
 ];
 
-function useAudio() {
-  const ctxRef=useRef(null);
-  const masterRef=useRef(null);
-  const loopRef=useRef(null);
-  const [musicOn,setMusicOn]=useState(false);
-  const [selectedMusic,setSelectedMusic]=useState(0);
+// ── YouTube 음악 플레이어 ─────────────────────────────────
+function useYouTubeMusic() {
+  const playerRef = useRef(null);
+  const containerRef = useRef(null);
+  const [musicOn, setMusicOn] = useState(false);
+  const [currentIdx, setCurrentIdx] = useState(null);
+  const [ready, setReady] = useState(false);
+  const shuffledRef = useRef([]);
 
-  const getCtx=()=>{
-    if(!ctxRef.current){
-      ctxRef.current=new(window.AudioContext||window.webkitAudioContext)();
-      masterRef.current=ctxRef.current.createGain();
-      masterRef.current.gain.value=0.15;
-      masterRef.current.connect(ctxRef.current.destination);
+  // 셔플 리스트 생성
+  const makeShuffled = () => {
+    const arr = [...Array(POPSONGS.length).keys()];
+    for (let i = arr.length-1; i>0; i--) {
+      const j = Math.floor(Math.random()*(i+1));
+      [arr[i],arr[j]] = [arr[j],arr[i]];
     }
-    if(ctxRef.current.state==='suspended') ctxRef.current.resume();
-    return ctxRef.current;
+    return arr;
   };
 
-  const stopMusic=useCallback(()=>{
-    if(loopRef.current){clearInterval(loopRef.current);loopRef.current=null;}
-  },[]);
+  useEffect(() => {
+    shuffledRef.current = makeShuffled();
+    // YouTube IFrame API 로드
+    if (!window.YT) {
+      const tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      document.head.appendChild(tag);
+    }
+    window.onYouTubeIframeAPIReady = () => setReady(true);
+    if (window.YT && window.YT.Player) setReady(true);
+  }, []);
 
-  const playMelody=useCallback((musicIdx)=>{
-    const ctx=getCtx();
-    const notes=CLASSICS[musicIdx].notes;
-    let t=ctx.currentTime+0.05;
-    notes.forEach(({f,d})=>{
-      if(f>0){
-        // 피아노 메인 음
-        const osc=ctx.createOscillator();
-        const g=ctx.createGain();
-        osc.type='triangle';
-        osc.frequency.value=f;
-        g.gain.setValueAtTime(0.45,t);
-        g.gain.exponentialRampToValueAtTime(0.18,t+d*0.3);
-        g.gain.exponentialRampToValueAtTime(0.001,t+d*0.95);
-        osc.connect(g);g.connect(masterRef.current);
-        osc.start(t);osc.stop(t+d);
-        // 피아노 배음 (2배음)
-        const osc2=ctx.createOscillator();
-        const g2=ctx.createGain();
-        osc2.type='sine';
-        osc2.frequency.value=f*2;
-        g2.gain.setValueAtTime(0.12,t);
-        g2.gain.exponentialRampToValueAtTime(0.001,t+d*0.5);
-        osc2.connect(g2);g2.connect(masterRef.current);
-        osc2.start(t);osc2.stop(t+d*0.5);
-        // 피아노 저음 반주 (옥타브 아래)
-        const osc3=ctx.createOscillator();
-        const g3=ctx.createGain();
-        osc3.type='sine';
-        osc3.frequency.value=f*0.5;
-        g3.gain.setValueAtTime(0.08,t);
-        g3.gain.exponentialRampToValueAtTime(0.001,t+d*0.7);
-        osc3.connect(g3);g3.connect(masterRef.current);
-        osc3.start(t);osc3.stop(t+d*0.7);
+  const createPlayer = useCallback((videoId, idx) => {
+    if (!window.YT || !window.YT.Player) return;
+    if (playerRef.current) {
+      try { playerRef.current.destroy(); } catch(e) {}
+    }
+    if (!document.getElementById('yt-player-div')) return;
+    playerRef.current = new window.YT.Player('yt-player-div', {
+      height: '1', width: '1',
+      videoId,
+      playerVars: { autoplay: 1, controls: 0, rel: 0, showinfo: 0, modestbranding: 1 },
+      events: {
+        onReady: (e) => { e.target.setVolume(40); e.target.playVideo(); },
+        onStateChange: (e) => {
+          if (e.data === window.YT.PlayerState.ENDED) playNext();
+        },
+        onError: () => playNext(),
       }
-      t+=d;
     });
-    return t-ctx.currentTime;
-  },[]);
+    setCurrentIdx(idx);
+  }, []);
 
-  const startMusic=useCallback((idx)=>{
-    stopMusic();
-    const dur=playMelody(idx)*1000;
-    loopRef.current=setInterval(()=>playMelody(idx),dur+200);
-  },[playMelody,stopMusic]);
+  const playNext = useCallback(() => {
+    const list = shuffledRef.current;
+    if (!list.length) return;
+    const nextPos = currentIdx !== null
+      ? (list.indexOf(currentIdx) + 1) % list.length : 0;
+    const nextIdx = list[nextPos];
+    createPlayer(POPSONGS[nextIdx].id, nextIdx);
+  }, [currentIdx, createPlayer]);
 
-  const toggleMusic=useCallback((idx)=>{
-    const i=idx!==undefined?idx:selectedMusic;
-    setMusicOn(on=>{
-      if(on&&idx===undefined){stopMusic();return false;}
-      startMusic(i);return true;
+  const toggleMusic = useCallback(() => {
+    setMusicOn(on => {
+      if (on) {
+        try { playerRef.current?.stopVideo(); } catch(e) {}
+        return false;
+      } else {
+        const list = shuffledRef.current;
+        const idx = list[Math.floor(Math.random() * list.length)];
+        createPlayer(POPSONGS[idx].id, idx);
+        return true;
+      }
     });
-    if(idx!==undefined) setSelectedMusic(idx);
-  },[startMusic,stopMusic,selectedMusic]);
+  }, [createPlayer]);
 
-  const playStone=useCallback((color)=>{
-    try{
-      const ctx=getCtx();
-      const osc=ctx.createOscillator();
-      const g=ctx.createGain();
-      osc.type='sine';
-      osc.frequency.value=color===BLACK?180:360;
-      g.gain.setValueAtTime(0.4,ctx.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.15);
-      osc.connect(g);g.connect(ctx.destination);
-      osc.start();osc.stop(ctx.currentTime+0.15);
-    }catch(e){}
-  },[]);
+  const playStone = useCallback((color) => {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = color === BLACK ? 180 : 360;
+      g.gain.setValueAtTime(0.4, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+      osc.connect(g); g.connect(ctx.destination);
+      osc.start(); osc.stop(ctx.currentTime + 0.15);
+    } catch(e) {}
+  }, []);
 
-  const playWin=useCallback(()=>{
-    try{
-      const ctx=getCtx();
-      [523,659,784,1047].forEach((f,i)=>{
-        const osc=ctx.createOscillator();
-        const g=ctx.createGain();
-        osc.type='triangle';osc.frequency.value=f;
-        g.gain.setValueAtTime(0.3,ctx.currentTime+i*0.18);
-        g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+i*0.18+0.4);
-        osc.connect(g);g.connect(ctx.destination);
+  const playWin = useCallback(() => {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      [523,659,784,1047].forEach((f,i) => {
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        osc.type = 'triangle'; osc.frequency.value = f;
+        g.gain.setValueAtTime(0.3, ctx.currentTime+i*0.18);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+i*0.18+0.4);
+        osc.connect(g); g.connect(ctx.destination);
         osc.start(ctx.currentTime+i*0.18);
         osc.stop(ctx.currentTime+i*0.18+0.4);
       });
-    }catch(e){}
-  },[]);
+    } catch(e) {}
+  }, []);
 
-  return{musicOn,toggleMusic,selectedMusic,setSelectedMusic,playStone,playWin,stopMusic};
+  const currentSong = currentIdx !== null ? POPSONGS[currentIdx] : null;
+
+  return { musicOn, toggleMusic, playNext, currentSong, ready, playStone, playWin };
 }
 
 // ── 타이머 색상 ──────────────────────────────────────────
@@ -491,11 +570,10 @@ export default function App() {
   const[timeLimit,setTimeLimit]=useState(0);
   const[timeLeft,setTimeLeft]=useState(0);
   const[pending,setPending]=useState(null); // 착수 대기
-  const[showMusicPanel,setShowMusicPanel]=useState(false);
   const avaRef=useRef(false);
   const boardRef=useRef(board);
   const turnRef=useRef(turn);
-  const{musicOn,toggleMusic,selectedMusic,setSelectedMusic,playStone,playWin}=useAudio();
+  const{musicOn,toggleMusic,playNext,currentSong,playStone,playWin}=useYouTubeMusic();
 
   boardRef.current=board;
   turnRef.current=turn;
@@ -628,6 +706,9 @@ export default function App() {
   // ── 메뉴 화면 ───────────────────────────────────────────
   if(!mode) return (
     <div style={{minHeight:'100vh',background:'radial-gradient(ellipse at center,#2a1500 0%,#0d0800 100%)',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',fontFamily:'serif',padding:16,position:'relative',overflow:'hidden'}}>
+      {/* YouTube 숨김 플레이어 */}
+      <div id="yt-player-div" style={{position:'fixed',bottom:-10,left:-10,width:1,height:1,overflow:'hidden',pointerEvents:'none'}}/>
+
       {/* 바둑판 배경 패턴 */}
       <svg style={{position:'absolute',top:0,left:0,width:'100%',height:'100%',opacity:0.07,pointerEvents:'none'}}>
         {Array.from({length:20},(_,i)=>(
@@ -681,24 +762,24 @@ export default function App() {
         ))}
       </div>
 
-      {/* 음악 */}
+      {/* 음악 버튼 */}
       <div style={{marginTop:20,position:'relative',zIndex:1,width:'100%',maxWidth:280}}>
-        <button onClick={()=>setShowMusicPanel(p=>!p)}
-          style={{width:'100%',background:musicOn?'#1a3a1a':'#1a1a1a',color:'#f5d77e',border:'1px solid #f5d77e55',borderRadius:10,padding:'8px 16px',fontSize:13,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>
-          {musicOn?'🎵':'🔇'} 배경음악 — {CLASSICS[selectedMusic].name}
-          <span style={{marginLeft:'auto',opacity:0.6}}>{showMusicPanel?'▲':'▼'}</span>
-        </button>
-        {showMusicPanel && (
-          <div style={{background:'#0d0800',border:'1px solid #3a2000',borderRadius:10,marginTop:4,overflow:'hidden'}}>
-            {CLASSICS.map((c,i)=>(
-              <button key={i} onClick={()=>{setSelectedMusic(i);toggleMusic(i);setShowMusicPanel(false);}}
-                style={{width:'100%',background:selectedMusic===i?'#2a1500':'transparent',color:selectedMusic===i?'#f5d77e':'#c8a96e',border:'none',borderBottom:'1px solid #2a1500',padding:'8px 14px',cursor:'pointer',textAlign:'left',fontSize:12,display:'flex',justifyContent:'space-between'}}>
-                <span>{i+1}. {c.name}</span>
-                <span style={{opacity:0.6}}>{c.composer}</span>
-              </button>
-            ))}
+        <button onClick={toggleMusic}
+          style={{width:'100%',background:musicOn?'#1a3a1a':'#1a1a1a',color:'#f5d77e',border:'1px solid #f5d77e55',borderRadius:10,padding:'10px 16px',fontSize:13,cursor:'pointer',display:'flex',alignItems:'center',gap:8}}>
+          <span>{musicOn?'🎵':'🔇'}</span>
+          <div style={{flex:1,textAlign:'left'}}>
+            <div style={{fontWeight:700}}>{musicOn?'음악 재생 중':'배경음악 OFF'}</div>
+            {musicOn&&currentSong&&(
+              <div style={{fontSize:11,opacity:0.75,marginTop:1}}>
+                {currentSong.title} — {currentSong.artist}
+              </div>
+            )}
           </div>
-        )}
+          {musicOn&&<button onClick={e=>{e.stopPropagation();playNext();}}
+            style={{background:'#2a4a2a',border:'1px solid #4a7a4a',color:'#fff',borderRadius:6,padding:'3px 8px',fontSize:11,cursor:'pointer'}}>
+            ⏭ 다음
+          </button>}
+        </button>
       </div>
     </div>
   );
@@ -764,11 +845,26 @@ export default function App() {
           {mode==='pvp'?'2인 대전':mode==='pva'?`AI 대전 (Lv.${aiLevel} ${LEVEL_NAMES[aiLevel]})` :'AI vs AI'}
         </h2>
         <span style={{color:'#c8a96e',fontSize:11,whiteSpace:'nowrap'}}>{moveCount}수</span>
-        <button onClick={()=>toggleMusic()}
+        <button onClick={toggleMusic}
           style={{background:musicOn?'#1a3a1a':'#1a1a1a',border:'1px solid #5a3000',color:'#f5d77e',borderRadius:7,padding:'3px 7px',cursor:'pointer',fontSize:12}}>
           {musicOn?'🎵':'🔇'}
         </button>
       </div>
+      {/* 현재 곡명 표시 */}
+      {musicOn&&currentSong&&(
+        <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:4,maxWidth:boardPx,width:'100%',padding:'0 8px',boxSizing:'border-box'}}>
+          <div style={{flex:1,background:'#0d0800',border:'1px solid #3a2000',borderRadius:8,padding:'4px 10px',fontSize:10,color:'#c8a96e',display:'flex',alignItems:'center',gap:6,overflow:'hidden'}}>
+            <span>🎵</span>
+            <span style={{overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
+              {currentSong.title} — {currentSong.artist}
+            </span>
+          </div>
+          <button onClick={playNext}
+            style={{background:'#1a2a1a',border:'1px solid #3a5a3a',color:'#aaa',borderRadius:7,padding:'4px 8px',fontSize:11,cursor:'pointer',whiteSpace:'nowrap'}}>
+            ⏭ 다음
+          </button>
+        </div>
+      )}
 
       {renderSettings()}
 
